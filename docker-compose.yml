@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  social_networking:
+    build:
+      context: .  # Build context is the current directory (project root)
+      dockerfile: ./python.dockerfile  # Path to Dockerfile
+    environment:
+      - USER_ID=1000  # Set environment variables
+      - GROUP_ID=1000
+    volumes:
+      - ./:/app  # Mount project directory as /app
+    ports:
+      - "8000:8000"  # Map container port 8000 to host port 8000
+    networks:
+      - default
+    restart: on-failure

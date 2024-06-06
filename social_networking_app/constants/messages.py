@@ -1,4 +1,4 @@
-INVALID_CREDENTIALS = 'Invalid credentials'
+INVALID_CREDENTIALS = "Invalid credentials"
 USER_CREATED = "User created successfully"
 FRIEND_EMAIL_NOT_FOUND = "Friend email not found."
 FRIEND_REQUEST_NOT_FOUND = "Friend request not found."
@@ -9,3 +9,4 @@ ALREADY_FRIENDS = "You are already friends"
 FRIEND_REQUEST_DECLINED = "They declined your friend request"  # More neutral term
 REQUEST_ALREADY_SENT = "Friend request already sent"
 FRIEND_REQUEST_SENT = "Friend request sent successfully"
+FRIEND_REQUEST_ACCEPTED = "Friend request accepted successfully"

@@ -14,27 +14,41 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path,include
-from social_networking_app.views.authentication import LoginView,SignupView
+from django.urls import include
+from django.urls import path
+
+from social_networking_app.views.authentication import LoginView
+from social_networking_app.views.authentication import SignupView
+from social_networking_app.views.social_accounts import FriendRequestView
 from social_networking_app.views.social_accounts import ListUserView
-from social_networking_app.views.social_accounts import SendFriendRequestView
 
 
 urlpatterns = [
-    path('auth/', include(
-        [
-            path('login/', LoginView.as_view()), 
-            path('sign-up/', SignupView.as_view())
-        ]
-    )),
-    path('social/', include(
-        [
-            path('users/', ListUserView.as_view()),
-            path('send-friend-request/', SendFriendRequestView.as_view(), name='send-friend-request'),
-            path('accept-friend-request/<int:pk>/', SendFriendRequestView.as_view(), name='accept-friend-request'),
-        ]
-    )),
-    
+    path(
+        "auth/",
+        include(
+            [
+                path("login/", LoginView.as_view()),
+                path("sign-up/", SignupView.as_view()),
+            ]
+        ),
+    ),
+    path(
+        "social/",
+        include(
+            [
+                path("users/", ListUserView.as_view()),
+                path(
+                    "send-friend-request/",
+                    FriendRequestView.as_view(),
+                    name="send-friend-request",
+                ),
+                path(
+                    "accept-friend-request/<int:pk>/",
+                    FriendRequestView.as_view(),
+                    name="accept-friend-request",
+                ),
+            ]
+        ),
+    ),
 ]
-
-
