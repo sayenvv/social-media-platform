@@ -1,0 +1,5 @@
+TIME_DELTA_VARIABLE = 5
+MAX_FRIEND_REQUESTS_PER_MINUTE = 3
+ACCEPTED = 'accepted'
+PENDING = 'pending'
+REJECTED = 'rejected'
