@@ -17,9 +17,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include
 from django.urls import path
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
+
+schema = get_schema_view(
+    openapi.Info(title="API", default_version="1.0.0", description="fdsfsd"),
+    public=True,
+)
+
 
 urlpatterns = [
+    path("rest/", include("rest_framework.urls", namespace="rest_framework")),
     path("admin/", admin.site.urls),
+    path("api_docs/", schema.with_ui("swagger", cache_timeout=0), name="swagger"),
     path(
         "api/v0/", include("social_networking_app.urls")
     ),  # Add '.urls' to the included app's URLconf

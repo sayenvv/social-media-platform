@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters
 from rest_framework import generics
 from rest_framework import pagination
@@ -6,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from ..constants.enums import ListUserEnum
 from ..constants.messages import FRIEND_EMAIL_NOT_FOUND
 from ..constants.messages import FRIEND_REQUEST_ACCEPTED
 from ..constants.messages import FRIEND_REQUEST_DECLINED
@@ -15,8 +18,17 @@ from ..models import FriendRequest
 from ..models import User
 from ..serializers.social_accounts import FriendRequestSerializer
 from ..serializers.social_accounts import ListUserSerializer
+from social_networking_media.decorators import manual_params
 
 
+@method_decorator(
+    name="get",
+    decorator=swagger_auto_schema(
+        manual_parameters=manual_params(
+            params=["list_friends"], enums=ListUserEnum, description="some description"
+        )
+    ),
+)
 class ListUserView(generics.ListAPIView):
     """
     API endpoint for retrieving a list of users.
@@ -40,6 +52,8 @@ class ListUserView(generics.ListAPIView):
 
     def get_queryset(self):
         """
+        param1 -- A first parameter
+        param2 -- A second parameter
         Filters the queryset based on request parameters.
 
         - Returns all active users by default.
@@ -48,16 +62,20 @@ class ListUserView(generics.ListAPIView):
         """
         queryset = super().get_queryset()  # Use parent class's base queryset
         queryset = queryset.filter(is_active=True)
-        if self.request.query_params.get("list_friends"):
+        if (
+            self.request.query_params.get("list_friends")
+            == ListUserEnum.list_friends_only.value
+        ):
             queryset = queryset.filter(
                 requests_received__sender=self.request.user,
                 requests_received__status="accepted",
             )
-        else:
-            queryset = (
-                queryset.exclude(email=self.request.user)
-                .exclude(is_staff=True)
-                .exclude(is_superuser=True)
+        elif (
+            self.request.query_params.get("list_friends")
+            == ListUserEnum.list_full_users.value
+        ):
+            queryset = queryset.exclude(
+                email=self.request.user, is_superuser=True, is_staff=True
             )
         return queryset
 

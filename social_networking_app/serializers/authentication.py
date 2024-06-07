@@ -34,7 +34,7 @@ class SignupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User  # Replace with your User model if different
-        fields = ("email", "name", "password")
+        fields = ("email", "name", "password", "phone_number")
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):

@@ -14,6 +14,7 @@ from ..serializers.authentication import UserSerializer
 
 class LoginView(APIView):
     """
+
     API endpoint for user login.
 
     This view allows unauthenticated users to attempt login using their email and password.
@@ -27,8 +28,9 @@ class LoginView(APIView):
     permission_classes = []  # Allow unauthenticated users to login
     serializer_class = LoginSerializer
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """
+
         Handles POST requests for user login.
 
         - Validates the request data using the LoginSerializer.

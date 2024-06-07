@@ -22,7 +22,7 @@ from ..models import User
 class ListUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = "__all__"
+        fields = ("id", "name", "email", "phone_number")
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):
@@ -41,7 +41,6 @@ class FriendRequestSerializer(serializers.ModelSerializer):
         )  # Sender and status are set automatically
 
     def validate(self, data):
-        print("++++sdsd")
         friend_request = FriendRequest.objects
         if not self.context.get("id"):
             request_user = self.context["request"].user
