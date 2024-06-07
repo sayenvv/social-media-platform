@@ -21,7 +21,7 @@ social media platform is essentially a simple platform developed in Django REST 
 1. First, clone the repository:
 
     ```bash
-    git clone https://github.com/your-username/your-repository.git](https://github.com/sayenvv/social-media-platform.git
+    git clone https://github.com/sayenvv/social-media-platform.git
     ```
 2. Second,checkout to development branch
    ```bash
