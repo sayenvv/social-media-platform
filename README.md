@@ -86,6 +86,7 @@ Steps:
 - Click on the link `Run in Postman`.
 - Click on the "Fork Collection" button on the popup page.
 - Click on "sayen-vv's Fork Collection" button on the next page.
+- please make sure your selected environment is `accuknox environment`
 - You now have the collection for AccuKnox.
 
 
