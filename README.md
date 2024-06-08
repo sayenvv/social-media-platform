@@ -31,7 +31,6 @@ social media platform is essentially a simple platform developed in Django REST 
 2. Install dependencies:
 
     ```bash
-    cd social_networking_media
     docker compose buld
     docker compose up
     ```
