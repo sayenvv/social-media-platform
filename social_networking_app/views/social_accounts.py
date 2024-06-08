@@ -105,6 +105,7 @@ class FriendRequestView(GenericAPIView):
 
     serializer_class = FriendRequestSerializer
     permission_classes = [IsAuthenticated]
+    queryset = FriendRequest.objects
 
     def get(self, request):
         """
@@ -116,7 +117,7 @@ class FriendRequestView(GenericAPIView):
         - Returns a JSON response with the serialized data and a 200 OK status code.
         """
         user = request.user
-        friend_requests = FriendRequest.objects.filter(receiver=user, status="pending")
+        friend_requests = self.queryset.filter(receiver=user, status="pending")
         serializer = self.serializer_class(friend_requests, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -162,7 +163,7 @@ class FriendRequestView(GenericAPIView):
         - Checks the updated status and returns a JSON response with an appropriate success message
           and a 200 OK status code based on whether the request was accepted or declined.
         """
-        if friend_request := FriendRequest.objects.filter(
+        if friend_request := self.queryset.filter(
             pk=pk, receiver=request.user
         ).first():  # fetch the frient request object
             data = request.data
