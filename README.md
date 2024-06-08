@@ -48,13 +48,13 @@ The social media platform is essentially a simple platform developed using Djang
 
     ```bash
     docker compose build
-    docker compose up
+    docker compose up -d
     ```
 
 4. Migrations:
  
     ```bash
-    docker compose exec social_networking bash 
+    docker compose exec social_networking bash
     python manage.py migrate
     ```
 
