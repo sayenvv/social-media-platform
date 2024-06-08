@@ -1,32 +1,41 @@
 from django.utils.decorators import method_decorator
+from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import filters
 from rest_framework import generics
 from rest_framework import pagination
 from rest_framework import status
+from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from ..constants.enums import ListUserEnum
-from ..constants.messages import FRIEND_EMAIL_NOT_FOUND
-from ..constants.messages import FRIEND_REQUEST_ACCEPTED
-from ..constants.messages import FRIEND_REQUEST_DECLINED
-from ..constants.messages import FRIEND_REQUEST_NOT_FOUND
-from ..constants.messages import FRIEND_REQUEST_SENT
-from ..models import FriendRequest
-from ..models import User
-from ..serializers.social_accounts import FriendRequestSerializer
-from ..serializers.social_accounts import ListUserSerializer
-from social_networking_media.decorators import manual_params
+from social_networking_app.constants.constant_variables import ACCEPTED
+from social_networking_app.constants.constant_variables import LISTING_TYPE
+from social_networking_app.constants.enums import ListUserEnum
+from social_networking_app.constants.messages import FRIEND_REQUEST_ACCEPTED
+from social_networking_app.constants.messages import FRIEND_REQUEST_DECLINED
+from social_networking_app.constants.messages import FRIEND_REQUEST_SENT
+from social_networking_app.constants.messages import INVALID_REQUEST
+from social_networking_app.models import FriendRequest
+from social_networking_app.models import User
+from social_networking_app.serializers.social_accounts import FriendRequestSerializer
+from social_networking_app.serializers.social_accounts import ListUserSerializer
 
 
 @method_decorator(
     name="get",
     decorator=swagger_auto_schema(
-        manual_parameters=manual_params(
-            params=["list_friends"], enums=ListUserEnum, description="some description"
-        )
+        manual_parameters=[
+            openapi.Parameter(
+                LISTING_TYPE,
+                openapi.IN_QUERY,
+                description="description",
+                type=openapi.TYPE_STRING,
+                enum=[enum.value for enum in ListUserEnum],
+                required=True,
+            )
+        ]
     ),
 )
 class ListUserView(generics.ListAPIView):
@@ -63,15 +72,15 @@ class ListUserView(generics.ListAPIView):
         queryset = super().get_queryset()  # Use parent class's base queryset
         queryset = queryset.filter(is_active=True)
         if (
-            self.request.query_params.get("list_friends")
+            self.request.query_params.get(LISTING_TYPE)
             == ListUserEnum.list_friends_only.value
         ):
             queryset = queryset.filter(
                 requests_received__sender=self.request.user,
-                requests_received__status="accepted",
+                requests_received__status=ACCEPTED,
             )
         elif (
-            self.request.query_params.get("list_friends")
+            self.request.query_params.get(LISTING_TYPE)
             == ListUserEnum.list_full_users.value
         ):
             queryset = queryset.exclude(
@@ -80,7 +89,7 @@ class ListUserView(generics.ListAPIView):
         return queryset
 
 
-class FriendRequestView(APIView):
+class FriendRequestView(GenericAPIView):
     """
     API endpoint for managing friend requests.
 
@@ -94,6 +103,7 @@ class FriendRequestView(APIView):
         - IsAuthenticated: Only authenticated users can access this endpoint.
     """
 
+    serializer_class = FriendRequestSerializer
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -107,10 +117,9 @@ class FriendRequestView(APIView):
         """
         user = request.user
         friend_requests = FriendRequest.objects.filter(receiver=user, status="pending")
-        serializer = FriendRequestSerializer(friend_requests, many=True)
+        serializer = self.serializer_class(friend_requests, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # TODO:some bugs to fix:-only getting "Your daily limit has been exceeded." message
     def post(self, request):
         """
         Sends a friend request to another user.
@@ -124,12 +133,15 @@ class FriendRequestView(APIView):
           with a success message and a 201 Created status code.
         """
         data = request.data
-        data.update({"sender": request.user.email})
-        serializer = FriendRequestSerializer(data=data, context={"request": request})
-        if not serializer.is_valid():
+        serializer = self.serializer_class(
+            data=data, context={"request": request}
+        )  # passing context to serializers
+        if (
+            not serializer.is_valid()
+        ):  # checking serializer is valid by calling validate method
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer.save()
+        serializer.save()  # if it valid save the data
         return Response(
             {"message": FRIEND_REQUEST_SENT}, status=status.HTTP_201_CREATED
         )
@@ -150,34 +162,37 @@ class FriendRequestView(APIView):
         - Checks the updated status and returns a JSON response with an appropriate success message
           and a 200 OK status code based on whether the request was accepted or declined.
         """
-        try:
-            friend_request = FriendRequest.objects.get(pk=pk)
-        except FriendRequest.DoesNotExist:
-            return Response(
-                {"error": FRIEND_REQUEST_NOT_FOUND}, status=status.HTTP_404_NOT_FOUND
+        if friend_request := FriendRequest.objects.filter(
+            pk=pk, receiver=request.user
+        ).first():  # fetch the frient request object
+            data = request.data
+            serializer = FriendRequestSerializer(
+                friend_request,
+                data=data,
+                partial=True,
+                context={
+                    "request": request,
+                    "sender": request.user.email,
+                    "id": pk,
+                    "status": data.get("status"),
+                },  # passing context to serializers
             )
+            if (
+                not serializer.is_valid()
+            ):  # checking serializer is valid by calling validate method
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        data = request.data
-        serializer = FriendRequestSerializer(
-            friend_request,
-            data=data,
-            partial=True,
-            context={
-                "request": request,
-                "sender": request.user.email,
-                "id": pk,
-                "status": data.get("status"),
-            },
-        )
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            if data.get("status") == ACCEPTED:
+                return Response(
+                    {"message": FRIEND_REQUEST_ACCEPTED}, status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    {"message": FRIEND_REQUEST_DECLINED}, status=status.HTTP_200_OK
+                )
 
-        serializer.save()
-        if data.get("status") == "accepted":
-            return Response(
-                {"message": FRIEND_REQUEST_ACCEPTED}, status=status.HTTP_200_OK
-            )
         else:
             return Response(
-                {"message": FRIEND_REQUEST_DECLINED}, status=status.HTTP_200_OK
+                {"error": INVALID_REQUEST}, status=status.HTTP_404_NOT_FOUND
             )

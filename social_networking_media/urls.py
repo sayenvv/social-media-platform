@@ -27,9 +27,13 @@ schema = get_schema_view(
 
 
 urlpatterns = [
+    # path to rest authentication
     path("rest/", include("rest_framework.urls", namespace="rest_framework")),
+    # path to django admin panel
     path("admin/", admin.site.urls),
+    # path to swagger : API documentation
     path("api_docs/", schema.with_ui("swagger", cache_timeout=0), name="swagger"),
+    # path to our social media apis
     path(
         "api/v0/", include("social_networking_app.urls")
     ),  # Add '.urls' to the included app's URLconf

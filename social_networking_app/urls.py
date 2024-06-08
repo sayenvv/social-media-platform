@@ -15,11 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib.auth import views
-from django.contrib.auth.views import LogoutView
 from django.urls import include
 from django.urls import path
 
 from social_networking_app.views.authentication import LoginView
+from social_networking_app.views.authentication import LogoutView
 from social_networking_app.views.authentication import SignupView
 from social_networking_app.views.social_accounts import FriendRequestView
 from social_networking_app.views.social_accounts import ListUserView
@@ -30,7 +30,7 @@ urlpatterns = [
         include(
             [
                 path("login/", LoginView.as_view()),
-                # path("logout/", LogoutView.as_view()),
+                path("logout/", LogoutView.as_view(), name="logout"),
                 path("sign-up/", SignupView.as_view()),
             ]
         ),
@@ -41,12 +41,17 @@ urlpatterns = [
             [
                 path("users/", ListUserView.as_view()),
                 path(
-                    "send-friend-request/",
+                    "friend-requests/",
+                    FriendRequestView.as_view(),
+                    name="list-friend-request",
+                ),
+                path(
+                    "friend-requests/send/",
                     FriendRequestView.as_view(),
                     name="send-friend-request",
                 ),
                 path(
-                    "accept-friend-request/<int:pk>/",
+                    "friend-requests/<int:pk>/",
                     FriendRequestView.as_view(),
                     name="accept-friend-request",
                 ),

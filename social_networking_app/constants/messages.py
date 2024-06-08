@@ -1,6 +1,6 @@
 INVALID_CREDENTIALS = "Invalid credentials"
 USER_CREATED = "User created successfully"
-FRIEND_EMAIL_NOT_FOUND = "Friend email not found."
+ACCOUNT_NOT_FOUND = "Account not found"
 FRIEND_REQUEST_NOT_FOUND = "Friend request not found."
 INVALID_FRIEND_REQUEST = "You cannot send a friend request to yourself."
 FRIEND_REQUEST_LIMIT_EXCEEDED = "Your daily limit has been exceeded."
@@ -10,3 +10,4 @@ FRIEND_REQUEST_DECLINED = "They declined your friend request"  # More neutral te
 REQUEST_ALREADY_SENT = "Friend request already sent"
 FRIEND_REQUEST_SENT = "Friend request sent successfully"
 FRIEND_REQUEST_ACCEPTED = "Friend request accepted successfully"
+INVALID_REQUEST = "Invalid request"

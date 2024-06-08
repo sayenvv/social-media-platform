@@ -56,7 +56,6 @@ INSTALLED_APPS = SYSTEM_APPS + THIRD_PARTY_APPS + APPLICATION_APPS
 
 
 ACCOUNT_LOGOUT_ON_GET = True
-# ACCOUNT_AUTHENTICATION_METHOD = "email"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

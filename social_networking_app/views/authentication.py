@@ -2,17 +2,19 @@
 from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from ..constants.messages import INVALID_CREDENTIALS
-from ..constants.messages import USER_CREATED
-from ..serializers.authentication import LoginSerializer
-from ..serializers.authentication import SignupSerializer
-from ..serializers.authentication import UserSerializer
+from social_networking_app.constants.messages import INVALID_CREDENTIALS
+from social_networking_app.constants.messages import USER_CREATED
+from social_networking_app.serializers.authentication import LoginSerializer
+from social_networking_app.serializers.authentication import SignupSerializer
+from social_networking_app.serializers.authentication import UserSerializer
 
 
-class LoginView(APIView):
+class LoginView(GenericAPIView):
     """
 
     API endpoint for user login.
@@ -57,7 +59,7 @@ class LoginView(APIView):
         )
 
 
-class SignupView(APIView):
+class SignupView(GenericAPIView):
     """
     API endpoint for user signup.
 
@@ -71,6 +73,7 @@ class SignupView(APIView):
     """
 
     permission_classes = []  # Allow unauthenticated users to signup
+    serializer_class = SignupSerializer
 
     def post(self, request):
         """
@@ -81,7 +84,7 @@ class SignupView(APIView):
         - Retrieves a token for the newly created user.
         - Returns a response with the token, created user details, and a 201 Created status code.
         """
-        serializer = SignupSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)  # Raise exception for invalid data
 
         user = serializer.save()
@@ -95,4 +98,22 @@ class SignupView(APIView):
                     "token": token.key,
                 },
                 status=status.HTTP_201_CREATED,
+            )
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            # Get the token from the request header
+            token = Token.objects.get(user=request.user)
+            # Delete the token
+            token.delete()
+            return Response(
+                {"detail": "Successfully logged out."}, status=status.HTTP_200_OK
+            )
+        except Token.DoesNotExist:
+            return Response(
+                {"detail": "Token not found."}, status=status.HTTP_400_BAD_REQUEST
             )
