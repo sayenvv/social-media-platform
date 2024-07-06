@@ -18,9 +18,11 @@ from social_networking_app.constants.messages import FRIEND_REQUEST_DECLINED
 from social_networking_app.constants.messages import FRIEND_REQUEST_SENT
 from social_networking_app.constants.messages import INVALID_REQUEST
 from social_networking_app.models import FriendRequest
+from social_networking_app.models import Post
 from social_networking_app.models import User
 from social_networking_app.serializers.social_accounts import FriendRequestSerializer
 from social_networking_app.serializers.social_accounts import ListUserSerializer
+from social_networking_app.serializers.social_accounts import PostSerializer
 
 
 @method_decorator(
@@ -197,3 +199,26 @@ class FriendRequestView(GenericAPIView):
             return Response(
                 {"error": INVALID_REQUEST}, status=status.HTTP_404_NOT_FOUND
             )
+
+
+class PostView(generics.CreateAPIView):
+    """
+    API endpoint for creating Posts with multiple image uploads.
+    Requires authentication (IsAuthenticated permission).
+    """
+
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user  # Get the authenticated user
+
+        serializer = self.get_serializer(
+            data=request.data, context={"request": request}
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

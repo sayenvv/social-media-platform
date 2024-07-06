@@ -19,6 +19,8 @@ from social_networking_app.constants.messages import FRIEND_REQUEST_LIMIT_EXCEED
 from social_networking_app.constants.messages import INVALID_FRIEND_REQUEST
 from social_networking_app.constants.messages import REQUEST_ALREADY_SENT
 from social_networking_app.models import FriendRequest
+from social_networking_app.models import Images
+from social_networking_app.models import Post
 from social_networking_app.models import User
 
 
@@ -101,5 +103,36 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.status = validated_data.get("status", instance.status)
+        instance.save()
+        return instance
+
+
+class PostSerializer(serializers.Serializer):
+
+    content = serializers.CharField()
+    feelings = serializers.CharField()
+    file = serializers.CharField()
+    images = serializers.ListField(child=serializers.ImageField(), required=False)
+
+    def create(self, validated_data):
+        post_instance = Post(
+            user=self.context["request"].user,
+            content=validated_data.get("content", None),
+        )
+
+        images = validated_data.get("images", [])
+
+        post_instance.save()  # Save the post instance first
+
+        for image in images:
+            Images.objects.create(post=post_instance, image=image)
+
+        post_instance.save()  # Save the post instance again after image creation
+
+        return post_instance
+
+    def update(self, instance, validated_data):
+        instance.feelings = validated_data.get("feelings", instance.feelings)
+        instance.text_field = validated_data.get("text_field", instance.text_field)
         instance.save()
         return instance

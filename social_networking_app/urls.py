@@ -23,6 +23,7 @@ from social_networking_app.views.authentication import LogoutView
 from social_networking_app.views.authentication import SignupView
 from social_networking_app.views.social_accounts import FriendRequestView
 from social_networking_app.views.social_accounts import ListUserView
+from social_networking_app.views.social_accounts import PostView
 
 urlpatterns = [
     path(
@@ -54,6 +55,11 @@ urlpatterns = [
                     "friend-requests/<int:pk>/",
                     FriendRequestView.as_view(),
                     name="accept-friend-request",
+                ),
+                path(
+                    "posts/",
+                    PostView.as_view(),
+                    name="create-a-post",
                 ),
             ]
         ),

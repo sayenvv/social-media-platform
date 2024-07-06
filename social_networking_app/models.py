@@ -6,7 +6,10 @@ from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.template.defaultfilters import slugify
 from rest_framework.authtoken.models import Token
+
+from social_networking_app.constants.constant_variables import FEELING_CHOICES
 
 
 class UserManager(BaseUserManager):
@@ -149,3 +152,24 @@ class FriendRequest(models.Model):
 
     def __str__(self):
         return f"{self.sender.name} -> {self.receiver.name} ({self.status})"
+
+
+class Post(models.Model):
+    """gh"""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    file = models.CharField(null=True, max_length=250)
+    feelings = models.CharField(choices=FEELING_CHOICES, max_length=30)
+
+
+def get_image_filename(instance, filename):
+    """h"""
+    return f"post_images/{filename}"
+
+
+class Images(models.Model):
+    """images"""
+
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, default=None)
+    image = models.ImageField(upload_to=get_image_filename, verbose_name="Image")

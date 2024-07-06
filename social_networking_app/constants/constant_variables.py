@@ -4,3 +4,10 @@ ACCEPTED = "accepted"
 PENDING = "pending"
 REJECTED = "rejected"
 LISTING_TYPE = "listing_type"
+
+FEELING_CHOICES = (
+    ("happy", "Happy"),
+    ("sad", "Sad"),
+    ("bored", "Bored"),
+    ("thrilled", "Thrilled"),
+)

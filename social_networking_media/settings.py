@@ -26,6 +26,32 @@ SECRET_KEY = "django-insecure-rnh^rl3yxc7+h$sd-v@(6_vqd6)2x@z%^-8%pthnby%ds4knv1
 DEBUG = True
 
 ALLOWED_HOSTS = []
+# If you're developing and need to allow all origins (not recommended for production):
+CORS_ALLOW_ALL_ORIGINS = True
+
+# If you need to allow credentials such as cookies, set the following:
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+# settings.py
+
+# Allow specific HTTP methods
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+]
+
+# Allow specific headers
+CORS_ALLOW_HEADERS = [
+    "authorization",
+    "content-type",
+    "x-csrftoken",
+]
 
 
 # Application definition
@@ -38,7 +64,13 @@ SYSTEM_APPS = [
     "django.contrib.staticfiles",
 ]
 
-THIRD_PARTY_APPS = ["rest_framework", "rest_framework.authtoken", "allauth", "drf_yasg"]
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "rest_framework.authtoken",
+    "allauth",
+    "drf_yasg",
+    "corsheaders",
+]
 
 
 REST_FRAMEWORK = {
@@ -66,6 +98,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "social_networking_media.urls"
